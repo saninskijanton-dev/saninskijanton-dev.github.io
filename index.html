@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Теория вероятностей</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 700px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 50px 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            font-weight: 300;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .login-section {
+            padding: 40px;
+            text-align: center;
+        }
+
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #dee2e6;
+            border-radius: 10px;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+            outline: none;
+        }
+
+        .quiz-container {
+            padding: 40px;
+            display: none;
+        }
+
+        .progress {
+            background: #ecf0f1;
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+
+        .question {
+            margin-bottom: 30px;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+            border: 1px solid #e9ecef;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question h3 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            font-size: 1.3em;
+            line-height: 1.5;
+            text-align: center;
+        }
+
+        .question-number {
+            color: #3498db;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .options {
+            display: grid;
+            gap: 15px;
+        }
+
+        .option {
+            padding: 18px 25px;
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        .option:hover {
+            border-color: #3498db;
+            background: #e3f2fd;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.2);
+        }
+
+        .option.selected {
+            border-color: #2980b9;
+            background: #d6eaf8;
+            box-shadow: 0 3px 15px rgba(52, 152, 219, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+            margin: 10px 5px;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-restart {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+        }
+
+        .results {
+            display: none;
+            padding: 50px 40px;
+            text-align: center;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .user-greeting {
+            font-size: 1.4em;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #e8f4fc;
+            border-radius: 10px;
+            border-left: 4px solid #3498db;
+        }
+
+        .score {
+            font-size: 5em;
+            color: #2c3e50;
+            margin: 30px 0;
+            font-weight: 300;
+        }
+
+        .message {
+            font-size: 1.5em;
+            margin: 25px 0;
+            color: #34495e;
+            line-height: 1.5;
+        }
+
+        .explanation {
+            background: #e8f4fc;
+            padding: 25px;
+            border-radius: 12px;
+            margin: 25px 0;
+            border-left: 4px solid #3498db;
+            text-align: left;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 40px;
+        }
+
+        .question-result {
+            margin: 30px 0;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 3px 15px rgba(0,0,0,0.08);
+            text-align: left;
+        }
+
+        .correct {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .incorrect {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            .header h1 {
+                font-size: 2.5em;
+            }
+            .quiz-container, .login-section {
+                padding: 25px;
+            }
+            .question {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Теория вероятностей</h1>
+        </div>
+
+        <!-- Секция входа -->
+        <div class="login-section" id="loginSection">
+            <div class="login-form">
+                <h2 style="color: #2c3e50; margin-bottom: 30px;">Добро пожаловать!</h2>
+                <div class="form-group">
+                    <label for="firstName">Имя:</label>
+                    <input type="text" id="firstName" class="form-input" placeholder="Введите ваше имя" required>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Фамилия:</label>
+                    <input type="text" id="lastName" class="form-input" placeholder="Введите вашу фамилию" required>
+                </div>
+                <button class="btn btn-start" onclick="startTest()">Начать тест</button>
+            </div>
+        </div>
+
+        <!-- Секция теста -->
+        <div class="quiz-container" id="quizContainer">
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+        </div>
+
+        <div class="controls" id="controls">
+            <button class="btn" id="prevBtn" onclick="prevQuestion()" style="display: none;">← Назад</button>
+            <button class="btn" id="nextBtn" onclick="nextQuestion()">Далее →</button>
+            <button class="btn" id="submitBtn" onclick="submitQuiz()" style="display: none;">Завершить тест</button>
+        </div>
+
+        <!-- Секция результатов -->
+        <div class="results" id="resultsContainer">
+            <div class="user-greeting" id="userGreeting"></div>
+            <h2>Результаты теста</h2>
+            <div class="score" id="score">0/0</div>
+            <div class="message" id="message"></div>
+            <button class="btn btn-restart" onclick="restartQuiz()">Пройти тест снова</button>
+            
+            <div id="detailedResults" style="margin-top: 40px;"></div>
+        </div>
+    </div>
+
+    <script>
+        let userName = '';
+        let userLastName = '';
+        let currentQuestion = 0;
+        let userAnswers = new Array(9).fill(-1);
+
+        const questions = [
+            {
+                question: "Что такое вероятность события?",
+                options: [
+                    "Число от 0 до 1, показывающее возможность события",
+                    "Количество всех возможных исходов",
+                    "Сумма всех благоприятных исходов",
+                    "Разница между возможными и благоприятными исходами"
+                ],
+                correct: 0,
+                explanation: "Правильный ответ: Число от 0 до 1, показывающее возможность события. Вероятность измеряет, насколько возможно наступление события."
+            },
+            {
+                question: "Какова вероятность выпадения орла при подбрасывании монеты?",
+                options: ["0.25", "0.5", "0.75", "1"],
+                correct: 1,
+                explanation: "Правильный ответ: 0.5. У монеты два равновероятных исхода - орёл и решка."
+            },
+            {
+                question: "Какая формула используется для классической вероятности?",
+                options: [
+                    "P = m/n",
+                    "P = m + n", 
+                    "P = m × n",
+                    "P = n/m"
+                ],
+                correct: 0,
+                explanation: "Правильный ответ: P = m/n, где m - благоприятные исходы, n - все возможные исходы."
+            },
+            {
+                question: "Если событие невозможно, чему равна его вероятность?",
+                options: ["0", "0.5", "1", "2"],
+                correct: 0,
+                explanation: "Правильный ответ: 0. Невозможное событие никогда не происходит."
+            },
+            {
+                question: "Какова вероятность выпадения 6 на игральной кости?",
+                options: ["0.5", "0.33", "0.17", "0.13"],
+                correct: 2,
+                explanation: "Правильный ответ: 0.17. На кости 6 граней, выпадение каждой равновероятно (1/6 ≈ 0.17)."
+            },
+            {
+                question: "Если P(A) = 0.3, чему равна вероятность противоположного события?",
+                options: ["0.3", "0.5", "0.7", "1.3"],
+                correct: 2,
+                explanation: "Правильный ответ: 0.7. P(не A) = 1 - P(A) = 1 - 0.3 = 0.7"
+            },
+            {
+                question: "Что означает вероятность 1?",
+                options: [
+                    "Событие невозможно",
+                    "Событие обязательно произойдет",
+                    "Событие маловероятно",
+                    "Событие случайное"
+                ],
+                correct: 1,
+                explanation: "Правильный ответ: Событие обязательно произойдет. Вероятность 1 означает достоверное событие."
+            },
+            {
+                question: "Какая формула для вероятности суммы несовместных событий?",
+                options: [
+                    "P(A+B) = P(A) + P(B)",
+                    "P(A+B) = P(A) × P(B)",
+                    "P(A+B) = P(A) - P(B)",
+                    "P(A+B) = P(A) / P(B)"
+                ],
+                correct: 0,
+                explanation: "Правильный ответ: P(A+B) = P(A) + P(B). Для несовместных событий вероятность суммы равна сумме вероятностей."
+            },
+            {
+                question: "В магазине продаётся 4 ручки: 1 черная, 1 белая, 2 зеленых. Какова вероятность вытащить черную или зеленую ручку?",
+                options: ["0.5", "0.75", "0.25", "1"],
+                correct: 1,
+                explanation: "Правильный ответ: 0.75. Всего ручек: 4. Черных или зеленых: 1 + 2 = 3. Вероятность = 3/4 = 0.75"
+            }
+        ];
+
+        function startTest() {
+            const firstName = document.getElementById('firstName').value.trim();
+            const lastName = document.getElementById('lastName').value.trim();
+            
+            if (!firstName || !lastName) {
+                alert('Пожалуйста, введите имя и фамилию');
+                return;
+            }
+            
+            userName = firstName;
+            userLastName = lastName;
+            
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('controls').style.display = 'block';
+            
+            showQuestion();
+            updateProgress();
+        }
+
+        function showQuestion() {
+            const quizContainer = document.getElementById('quizContainer');
+            const question = questions[currentQuestion];
+            
+            quizContainer.innerHTML = `
+                <div class="question">
+                    <div class="question-number">Вопрос ${currentQuestion + 1} из ${questions.length}</div>
+                    <h3>${question.question}</h3>
+                    <div class="options">
+                        ${question.options.map((option, index) => `
+                            <div class="option ${userAnswers[currentQuestion] === index ? 'selected' : ''}" 
+                                 onclick="selectAnswer(${index})">
+                                ${option}
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            updateNavigationButtons();
+        }
+
+        function selectAnswer(answerIndex) {
+            userAnswers[currentQuestion] = answerIndex;
+            showQuestion();
+        }
+
+        function updateNavigationButtons() {
+            document.getElementById('prevBtn').style.display = currentQuestion > 0 ? 'inline-block' : 'none';
+            document.getElementById('nextBtn').style.display = currentQuestion < questions.length - 1 ? 'inline-block' : 'none';
+            document.getElementById('submitBtn').style.display = currentQuestion === questions.length - 1 ? 'inline-block' : 'none';
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                currentQuestion++;
+                showQuestion();
+                updateProgress();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                showQuestion();
+                updateProgress();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+        }
+
+        function submitQuiz() {
+            calculateResults();
+        }
+
+        function calculateResults() {
+            let correctAnswers = 0;
+            const detailedResults = [];
+
+            questions.forEach((question, index) => {
+                const userAnswer = userAnswers[index];
+                const isCorrect = userAnswer === question.correct;
+                
+                if (isCorrect) correctAnswers++;
+
+                detailedResults.push(`
+                    <div class="question-result">
+                        <h4>Вопрос ${index + 1}: ${isCorrect ? '<span class="correct">✅ Правильно</span>' : '<span class="incorrect">❌ Неправильно</span>'}</h4>
+                        <p><strong>Ваш ответ:</strong> ${userAnswer !== -1 ? question.options[userAnswer] : 'Нет ответа'}</p>
+                        <p><strong>Правильный ответ:</strong> ${question.options[question.correct]}</p>
+                        <div class="explanation">${question.explanation}</div>
+                    </div>
+                `);
+            });
+
+            const score = correctAnswers;
+            const total = questions.length;
+            const percentage = Math.round((score / total) * 100);
+
+            // Показываем приветствие с именем пользователя
+            document.getElementById('userGreeting').textContent = 
+                `${userName} ${userLastName}, вот ваши результаты:`;
+            
+            document.getElementById('score').textContent = `${score}/${total}`;
+            document.getElementById('detailedResults').innerHTML = detailedResults.join('');
+            
+            let message = "";
+            if (percentage >= 90) message = "Великолепно! Вы отлично понимаете основы! 🎯";
+            else if (percentage >= 70) message = "Очень хорошо! Вы разбираетесь в теории вероятностей! 👍";
+            else if (percentage >= 50) message = "Хороший результат! Продолжайте изучать тему! 📚";
+            else message = "Попробуйте еще раз! Вы обязательно разберетесь! 💪";
+
+            document.getElementById('message').textContent = message;
+
+            document.getElementById('quizContainer').style.display = 'none';
+            document.getElementById('controls').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'block';
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = new Array(questions.length).fill(-1);
+            
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('quizContainer').style.display = 'block';
+            document.getElementById('controls').style.display = 'block';
+            
+            showQuestion();
+            updateProgress();
+        }
+
+        // Обработка нажатия Enter в форме
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputs = document.querySelectorAll('.form-input');
+            inputs.forEach(input => {
+                input.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        startTest();
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
